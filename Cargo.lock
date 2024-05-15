@@ -2913,7 +2913,7 @@ dependencies = [
 [[package]]
 name = "raydium_amm"
 version = "0.3.0"
-source = "git+https://github.com/raydium-io/raydium-amm#a507227c8d32bb10a03b7d04f1165430eae1f92c"
+source = "git+https://github.com/BTCLTC/raydium-amm#4ed9263fe882b65102d120d8d002ee5d5c51a7f5"
 dependencies = [
  "arrayref",
  "arrform",

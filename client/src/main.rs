@@ -7,6 +7,33 @@ use std::str::FromStr;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{pubkey::Pubkey, signature::Signer, transaction::Transaction};
 
+fn send_init_config_tx() -> Result<()> {
+    // config params
+    let wallet_file_path = "/home/user/.config/solana/id.json";
+    let cluster_url = "https://api.devnet.solana.com/";
+
+    let client = RpcClient::new(cluster_url.to_string());
+    let wallet = solana_sdk::signature::read_keypair_file(wallet_file_path)
+        .map_err(|_| format_err!("failed to read keypair from {}", wallet_file_path))?;
+
+    let amm_program = Pubkey::from_str("baskUiPSS8Tv3fvCdYKmBfwgwK3Vbkr8KDCCET3KjSv")?;
+    let admin = Pubkey::from_str("CcwNaTGp6eUfK69DaHihfjC63wgSygeuUpD23Y68MkeD")?;
+    let amm_config = amm::get_amm_config(&amm_program);
+    let pnl_owner = Pubkey::from_str("BaxwYWafs4xeTYQqAk8jRTN7Fi1KtDUXKmMkkfQyWRwC")?;
+
+    let build_init_instruction = amm::instructions::initialize_config(&amm_program, &admin, &amm_config, &pnl_owner)?;
+    // send init tx
+    let txn = Transaction::new_signed_with_payer(
+        &vec![build_init_instruction],
+        Some(&wallet.pubkey()),
+        &vec![&wallet],
+        client.get_latest_blockhash()?,
+    );
+    let sig = raydium_library::common::rpc::send_txn(&client, &txn, true)?;
+    println!("init config sig: {:#?}", sig);
+    Ok(())
+}
+
 fn send_init_amm_pool_tx() -> Result<()> {
     // config params
     let wallet_file_path = "id.json";
@@ -287,5 +314,6 @@ fn main() -> Result<()> {
     // send_deposit_amm_pool_tx()?;
     // send_withdraw_amm_pool_tx()?;
     // send_swap_tx()?;
+    send_init_config_tx()?;
     Ok(())
 }

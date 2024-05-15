@@ -4,6 +4,16 @@ use amm::utils::AmmKeys;
 use anyhow::Result;
 use solana_sdk::{instruction::Instruction, pubkey::Pubkey};
 
+pub fn initialize_config(
+    amm_program: &Pubkey,
+    admin: &Pubkey,
+    amm_config: &Pubkey,
+    pnl_owner: &Pubkey,
+) -> Result<Instruction> {
+    let ini_config_instruction = raydium_amm::instruction::create_config_account(amm_program, admin, amm_config, pnl_owner)?;
+    Ok(ini_config_instruction)
+}
+
 pub fn initialize_amm_pool(
     amm_program: &Pubkey,
     amm_keys: &AmmKeys,

@@ -13,7 +13,7 @@ raydium-amm-v3 = { git = "https://github.com/raydium-io/raydium-clmm", features 
 serum_dex = { version = "0.5.10", git = "https://github.com/raydium-io/openbook-dex", default-features = false, features = [
     "client",
 ] }
-raydium_amm = { git = "https://github.com/raydium-io/raydium-amm", default-features = false, features = [
+raydium_amm = { git = "https://github.com/BTCLTC/raydium-amm", default-features = false, features = [
     "client",
 ] }
 spl-token = { version = "4.0.0", features = ["no-entrypoint"] }
