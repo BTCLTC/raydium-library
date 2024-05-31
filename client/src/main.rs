@@ -5,26 +5,29 @@ use raydium_library::amm;
 use std::str::FromStr;
 
 use solana_client::rpc_client::RpcClient;
-use solana_sdk::{pubkey::Pubkey, signature::Signer, transaction::Transaction};
+use solana_sdk::{compute_budget, pubkey::Pubkey, signature::Signer, transaction::Transaction};
 
 fn send_init_config_tx() -> Result<()> {
     // config params
-    let wallet_file_path = "/home/user/.config/solana/id.json";
-    let cluster_url = "https://api.devnet.solana.com/";
+    let wallet_file_path = "/home/user/Git/raydium-amm/wallet/deployer.json";
+    let cluster_url = "https://polished-tame-telescope.solana-mainnet.quiknode.pro/15e7043caa92dd4fa266f254731ea5be00c14003";
 
     let client = RpcClient::new(cluster_url.to_string());
     let wallet = solana_sdk::signature::read_keypair_file(wallet_file_path)
         .map_err(|_| format_err!("failed to read keypair from {}", wallet_file_path))?;
 
-    let amm_program = Pubkey::from_str("baskUiPSS8Tv3fvCdYKmBfwgwK3Vbkr8KDCCET3KjSv")?;
-    let admin = Pubkey::from_str("CcwNaTGp6eUfK69DaHihfjC63wgSygeuUpD23Y68MkeD")?;
+    let amm_program = Pubkey::from_str("dexrBFKXSS5Mge5FN8DRRMfsqigjgj2P9ifm38orQRx")?;
+    let admin = Pubkey::from_str("dexhW5HTwVmuMY9eEtp6EkHvfyHt4Mi9J3z5BcriHqu")?;
     let amm_config = amm::get_amm_config(&amm_program);
-    let pnl_owner = Pubkey::from_str("BaxwYWafs4xeTYQqAk8jRTN7Fi1KtDUXKmMkkfQyWRwC")?;
+    let pnl_owner = Pubkey::from_str("JEGAVtbuf3kRazoFuZmBbFMWa4zQ86PXRXPLQLa6NoMB")?;
 
     let build_init_instruction = amm::instructions::initialize_config(&amm_program, &admin, &amm_config, &pnl_owner)?;
+
+    let compute_unit_price_tx = compute_budget::ComputeBudgetInstruction::set_compute_unit_price(100000);
+
     // send init tx
     let txn = Transaction::new_signed_with_payer(
-        &vec![build_init_instruction],
+        &vec![compute_unit_price_tx, build_init_instruction],
         Some(&wallet.pubkey()),
         &vec![&wallet],
         client.get_latest_blockhash()?,
