@@ -805,6 +805,9 @@ name = "bs58"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "771fe0050b883fcc3ea2359b1a96bcfbc090b7116eae7c3c512c7a083fdf23d3"
+dependencies = [
+ "sha2 0.9.9",
+]
 
 [[package]]
 name = "bs58"
@@ -958,6 +961,8 @@ name = "client"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "bincode",
+ "bs58 0.4.0",
  "raydium-library",
  "solana-client",
  "solana-sdk",
@@ -2913,7 +2918,7 @@ dependencies = [
 [[package]]
 name = "raydium_amm"
 version = "0.3.0"
-source = "git+https://github.com/BTCLTC/raydium-amm#4ed9263fe882b65102d120d8d002ee5d5c51a7f5"
+source = "git+https://github.com/BTCLTC/raydium-amm?rev=3e54f94f#3e54f94ffea84b98e8f4531e4764cf1c38170627"
 dependencies = [
  "arrayref",
  "arrform",

@@ -124,6 +124,37 @@ pub fn withdraw(
     Ok(withdraw_instruction)
 }
 
+pub fn withdraw_pnl(
+    amm_program: &Pubkey,
+    amm_config: &Pubkey,
+    amm_keys: &AmmKeys,
+    market_keys: &openbook::MarketPubkeys,
+    user_owner: &Pubkey,
+    user_token_coin: &Pubkey,
+    user_token_pc: &Pubkey,
+) -> Result<Instruction> {
+    let withdraw_instruction = raydium_amm::instruction::withdrawpnl(
+        amm_program,
+        &amm_keys.amm_pool,
+        amm_config,
+        &amm_keys.amm_authority,
+        &amm_keys.amm_open_order,
+        &amm_keys.amm_coin_vault,
+        &amm_keys.amm_pc_vault,
+        user_token_coin,
+        user_token_pc,
+        user_owner,
+        &amm_keys.amm_target,
+        &amm_keys.market_program,
+        &amm_keys.market,
+        &market_keys.event_q,
+        &market_keys.coin_vault,
+        &market_keys.pc_vault,
+        &market_keys.vault_signer_key,
+    )?;
+    Ok(withdraw_instruction)
+}
+
 pub fn swap(
     amm_program: &Pubkey,
     amm_keys: &AmmKeys,
