@@ -138,7 +138,8 @@ pub fn load_amm_keys(
     })
 }
 
-pub fn get_amm_config(amm_program: &Pubkey,) -> Pubkey {
-    let (amm_config, _) = Pubkey::find_program_address(&[&raydium_amm::processor::AMM_CONFIG_SEED], &amm_program);
+pub fn get_amm_config(amm_program: &Pubkey) -> Pubkey {
+    let (amm_config, _) =
+        Pubkey::find_program_address(&[&raydium_amm::processor::AMM_CONFIG_SEED], &amm_program);
     return amm_config;
 }

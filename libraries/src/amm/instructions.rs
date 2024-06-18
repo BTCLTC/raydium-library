@@ -10,7 +10,8 @@ pub fn initialize_config(
     amm_config: &Pubkey,
     pnl_owner: &Pubkey,
 ) -> Result<Instruction> {
-    let ini_config_instruction = raydium_amm::instruction::create_config_account(amm_program, admin, amm_config, pnl_owner)?;
+    let ini_config_instruction =
+        raydium_amm::instruction::create_config_account(amm_program, admin, amm_config, pnl_owner)?;
     Ok(ini_config_instruction)
 }
 

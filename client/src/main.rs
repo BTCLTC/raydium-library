@@ -2,10 +2,14 @@
 
 use anyhow::{format_err, Result};
 use raydium_library::amm;
+use spl_associated_token_account::instruction::create_associated_token_account;
 use std::str::FromStr;
 
 use solana_client::rpc_client::RpcClient;
-use solana_sdk::{compute_budget, pubkey::Pubkey, signature::Signer, transaction::Transaction};
+use solana_sdk::{
+    compute_budget, instruction::Instruction, message::Message, pubkey::Pubkey, signature::Signer,
+    transaction::Transaction,
+};
 
 fn send_init_config_tx() -> Result<()> {
     // config params
@@ -21,9 +25,11 @@ fn send_init_config_tx() -> Result<()> {
     let amm_config = amm::get_amm_config(&amm_program);
     let pnl_owner = Pubkey::from_str("6WZS2uPMeRVDU13SW3Qbo9oci3WvoMLdWoj2b7qA4Wj8")?;
 
-    let build_init_instruction = amm::instructions::initialize_config(&amm_program, &admin, &amm_config, &pnl_owner)?;
+    let build_init_instruction =
+        amm::instructions::initialize_config(&amm_program, &admin, &amm_config, &pnl_owner)?;
 
-    let compute_unit_price_tx = compute_budget::ComputeBudgetInstruction::set_compute_unit_price(100000);
+    let compute_unit_price_tx =
+        compute_budget::ComputeBudgetInstruction::set_compute_unit_price(100000);
 
     // send init tx
     let txn = Transaction::new_signed_with_payer(
@@ -312,31 +318,30 @@ fn send_swap_tx() -> Result<()> {
 
 fn send_withdraw_pnl_tx() -> Result<()> {
     // config params
-    let wallet_file_path = "/home/user/Test/raydium-amm/wallet/dev_pnl.json";
-    let cluster_url = "https://solana-devnet.g.alchemy.com/v2/4Pp6L7mw6IhhxtUZCYflAVl8kRx_y_qe";
+    let cluster_url = "https://polished-tame-telescope.solana-mainnet.quiknode.pro/15e7043caa92dd4fa266f254731ea5be00c14003";
 
-    let amm_program = Pubkey::from_str("GrtWEWwKNJDBxM6RE5Kp2kbvbRSa4vL5rQSJLSWbpKax")?;
-    let amm_pool_id = Pubkey::from_str("4k39LVN7P5C1dfys9Y2a2XcVa6wMnFNcHDbFduenLXsS")?;
+    let wallet = Pubkey::from_str("JEGAVtbuf3kRazoFuZmBbFMWa4zQ86PXRXPLQLa6NoMB")?;
+
+    let amm_program = Pubkey::from_str("dexrBFKXSS5Mge5FN8DRRMfsqigjgj2P9ifm38orQRx")?;
+    let amm_pool_id = Pubkey::from_str("BqGt57LS2AveXUowbJWrhtoqKRhPpyJMoV1bgA9mXCwy")?;
     let amm_config = amm::get_amm_config(&amm_program);
 
     let client = RpcClient::new(cluster_url.to_string());
-    let wallet = solana_sdk::signature::read_keypair_file(wallet_file_path)
-        .map_err(|_| format_err!("failed to read keypair from {}", wallet_file_path))?;
 
     // load amm keys
     let amm_keys = amm::AmmKeys {
         amm_pool: amm_pool_id,
-        amm_coin_mint: Pubkey::from_str("5b12JwgceBJxbTqSEeuihdZYjr5mjtXe1UFVm6HfdXZL")?,
+        amm_coin_mint: Pubkey::from_str("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v")?,
         amm_pc_mint: Pubkey::from_str("So11111111111111111111111111111111111111112")?,
-        amm_authority: Pubkey::from_str("94QCQ3mE4ULm1xYxziVEdqjX4djn423g1L9LM1DFWCvt")?,
-        amm_target: Pubkey::from_str("Hy7eakfRKWJfZ26YSRuH78meqQRbyh3rLoqcuAPxwjXU")?,
-        amm_coin_vault: Pubkey::from_str("FrPwhcspDQNHFtFGy4yssdMkzKQkgCp2JiJv6Si1RUjj")?,
-        amm_pc_vault: Pubkey::from_str("J8EMs56Ke4H6jYhdqUyw9Jq1u2Vek6zh76PdTnXHVpKs")?,
-        amm_lp_mint: Pubkey::from_str("A5SFH5okdEMwWNCNT3gmuhhfVLCXheCg5rVrj9UuqgqK")?,
-        amm_open_order: Pubkey::from_str("7Q8yQWrsyR34yHp7sBWEyRVtSHLV1rXuTQmEsQPS46s9")?,
-        market_program: Pubkey::from_str("EoTcMgcDRTJVZDMZWBoU6rhYHZfkNTVEAfz3uUJRcYGj")?,
-        market: Pubkey::from_str("936jEPoVafX15iyni5mtzp2NC5f7MWPPG72tyZwECGTc")?,
-        nonce: 255,
+        amm_authority: Pubkey::from_str("2Ha2Z2a8DaJiexdiWLQVfqk3XBC7KBcugQofyRmdJKDr")?,
+        amm_target: Pubkey::from_str("2Yi1NPeiFkV1WrwuzRSJD5AA9o7dW7dVERFu4q3DEF4M")?,
+        amm_coin_vault: Pubkey::from_str("89y9aACEi79jb2w7apTR3e3159V1wvVreApwa9QuiMhr")?,
+        amm_pc_vault: Pubkey::from_str("DSLBkeCgTFYGkEAcH2kbzoRXBTG3Cxed4a6sCUXJFFdr")?,
+        amm_lp_mint: Pubkey::from_str("FvJQhTTnPZ2PRPNwcjEXJ56VbxkpNUfdsLF3dzfAcGiC")?,
+        amm_open_order: Pubkey::from_str("7G2AGBM88etvtaYhAM1Ej4FRRm26xGfEsEDfmTf18ZLp")?,
+        market_program: Pubkey::from_str("srmqPvymJeFKQ4zGQed1GFppgkRHL9kaELCbyksJtPX")?,
+        market: Pubkey::from_str("8x21b8jQ9y5HnY9bFCCNwZzqhLuwBDzrVVyNtbVx763p")?,
+        nonce: 253,
     };
     println!("amm_keys: {:#?}", amm_keys);
     // load market keys
@@ -345,51 +350,83 @@ fn send_withdraw_pnl_tx() -> Result<()> {
         &amm_keys.market_program,
         &amm_keys.market,
     )?;
-    // let market_keys = amm::MarketPubkeys {
-    //     market: Box::new(Pubkey::from_str("936jEPoVafX15iyni5mtzp2NC5f7MWPPG72tyZwECGTc")?),
-    //     req_q: Box::new(Pubkey::from_str("EqVwPdZ8k9th1cdkFxB4jervw9ihvrQVcjhBDXb4QayQ")?),
-    //     event_q: Box::new(Pubkey::from_str("J4gc73nLdTPrm71bZ2LZfznJa4zyN65mbQQexWotsLPE")?),
-    //     bids: Box::new(Pubkey::from_str("CqvcXx58UgB3owQJkzwmVwQv37PJMdJQsetQPpRDquxm")?),
-    //     asks: Box::new(Pubkey::from_str("46QUixjEpGQtgQCYp1UAGFQExrcGLPRMAxng1PdKNM4h")?),
-    //     coin_vault: Box::new(Pubkey::from_str("BfhNwBj9VtZeX9qnxqpB9RayceGT1RnFmWMrtwsiFvXi")?),
-    //     pc_vault: Box::new(Pubkey::from_str("GEe5sUcFrXre9pHibLnsfRa78rTPSRXVHaAVC1kVPCFU")?),
-    //     vault_signer_key: Box::new(Pubkey::from_str("75ZBVxnbTdu9jkkoAi26qBZkspsmvJWeZiaZRUrHxbxo")?),
-    //     coin_mint: Box::new(Pubkey::from_str("5b12JwgceBJxbTqSEeuihdZYjr5mjtXe1UFVm6HfdXZL")?),
-    //     pc_mint: Box::new(Pubkey::from_str("So11111111111111111111111111111111111111112")?),
-    //     coin_lot_size: 100,
-    //     pc_lot_size: 10000000
-    // };
     println!("market_keys: {:#?}", market_keys);
+
+    let user_token_coin = &spl_associated_token_account::get_associated_token_address(
+        &wallet,
+        &amm_keys.amm_coin_mint,
+    );
+
+    let user_token_pc =
+        &spl_associated_token_account::get_associated_token_address(&wallet, &amm_keys.amm_pc_mint);
+
+    let mut create_ata_instructions: Vec<Instruction> = Vec::new();
+
+    let user_token_coin_account_info = client.get_account(&user_token_coin);
+    if let Err(_) = user_token_coin_account_info {
+        let user_token_coin_ata_ix = create_associated_token_account(
+            &wallet,
+            &wallet,
+            &amm_keys.amm_coin_mint,
+            &spl_token::ID,
+        );
+        create_ata_instructions.push(user_token_coin_ata_ix);
+    }
+
+    let user_token_pc_account_info = client.get_account(&user_token_pc);
+    if let Err(_) = user_token_pc_account_info {
+        let user_token_pc_ata_ix = create_associated_token_account(
+            &wallet,
+            &wallet,
+            &amm_keys.amm_pc_mint,
+            &spl_token::ID,
+        );
+        create_ata_instructions.push(user_token_pc_ata_ix);
+    }
+
+    if create_ata_instructions.len() > 0 {
+        let blockhash = client.get_latest_blockhash()?;
+        let message =
+            Message::new_with_blockhash(&create_ata_instructions, Some(&wallet), &blockhash);
+
+        println!("create ata message: {:#?}", message);
+
+        return Ok(());
+    }
+
+    println!("user_token_coin: {:?}", user_token_coin.to_string());
+    println!("user_token_pc: {:?}", user_token_pc.to_string());
 
     let build_withdraw_pnl_instruction = raydium_library::amm::instructions::withdraw_pnl(
         &amm_program,
         &amm_config,
         &amm_keys,
         &market_keys,
-        &wallet.pubkey(),
-        &spl_associated_token_account::get_associated_token_address(
-            &wallet.pubkey(),
-            &amm_keys.amm_coin_mint,
-        ),
-        &spl_associated_token_account::get_associated_token_address(
-            &wallet.pubkey(),
-            &amm_keys.amm_pc_mint,
-        ),
+        &wallet,
+        user_token_coin,
+        user_token_pc,
     )?;
 
-    println!("{:#?}", build_withdraw_pnl_instruction);
+    // let compute_unit_price_tx =
+    //     compute_budget::ComputeBudgetInstruction::set_compute_unit_price(100000);
 
-    let compute_unit_price_tx = compute_budget::ComputeBudgetInstruction::set_compute_unit_price(100000);
+    let blockhash = client.get_latest_blockhash()?;
 
-    let transaction = Transaction::new_signed_with_payer(
-        &vec![compute_unit_price_tx, build_withdraw_pnl_instruction],
-        Some(&wallet.pubkey()),
-        &vec![&wallet],
-        client.get_latest_blockhash()?,
+    let message = Message::new_with_blockhash(
+        &vec![build_withdraw_pnl_instruction],
+        Some(&wallet),
+        &blockhash,
     );
 
-    let sig = raydium_library::common::rpc::send_txn(&client, &transaction, true)?;
-    println!("withdraw pnl sig: {:#?}", sig);
+    // let transaction = Transaction::new_signed_with_payer(
+    //     &vec![compute_unit_price_tx, build_withdraw_pnl_instruction],
+    //     Some(&wallet),
+    //     &vec![&wallet],
+    //     client.get_latest_blockhash()?,
+    // );
+
+    // let sig = raydium_library::common::rpc::send_txn(&client, &transaction, true)?;
+    println!("withdraw pnl message: {:#?}", message);
 
     Ok(())
 }
